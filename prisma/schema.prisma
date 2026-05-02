@@ -1,0 +1,258 @@
+// Prisma schema — Bestpoint
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───── Auth.js models ─────
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  bio           String?
+  level         Int       @default(1)
+  levelName     String    @default("Novato")
+  performance   Int       @default(0)
+  coins         Int       @default(0)
+  streak        Int       @default(0)
+  createdAt     DateTime  @default(now())
+
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]
+  comments      Comment[]
+  likes         Like[]
+  clubs         ClubMember[]
+  meetings      MeetingAttendee[]
+  agendas       Agenda[]
+  tasks         Task[]
+  notes         Note[]
+  ideas         Idea[]
+  pollVotes     PollVote[]
+  coinTx        CoinTx[]
+  toolUsage     ToolUsage[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  @@unique([identifier, token])
+}
+
+// ───── Club ─────
+model Club {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  coverHue    Int      @default(25)
+  createdAt   DateTime @default(now())
+  members     ClubMember[]
+  posts       Post[]
+  meetings    Meeting[]
+  agendas     Agenda[]
+}
+
+model ClubMember {
+  id      String @id @default(cuid())
+  userId  String
+  clubId  String
+  role    String @default("member") // owner | admin | member
+  joinedAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  @@unique([userId, clubId])
+}
+
+// ───── Posts ─────
+enum PostType {
+  TEXT
+  IMAGE
+  VIDEO
+  POLL
+  EVENT
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  authorId  String
+  clubId    String?
+  type      PostType @default(TEXT)
+  title     String
+  body      String?  @db.Text
+  mediaUrl  String?
+  tag       String?
+  tagColor  String?
+  hue       Int      @default(25)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  club      Club?    @relation(fields: [clubId], references: [id])
+  comments  Comment[]
+  likes     Like[]
+  poll      Poll?
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  authorId  String
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id      String @id @default(cuid())
+  postId  String
+  userId  String
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([postId, userId])
+}
+
+// ───── Poll ─────
+model Poll {
+  id        String   @id @default(cuid())
+  postId    String   @unique
+  closesAt  DateTime?
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  options   PollOption[]
+}
+
+model PollOption {
+  id     String @id @default(cuid())
+  pollId String
+  label  String
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes  PollVote[]
+}
+
+model PollVote {
+  id        String @id @default(cuid())
+  optionId  String
+  userId    String
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([optionId, userId])
+}
+
+// ───── Meeting ─────
+model Meeting {
+  id          String   @id @default(cuid())
+  clubId      String
+  title       String
+  description String?  @db.Text
+  startsAt    DateTime
+  durationMin Int      @default(60)
+  location    String?
+  createdAt   DateTime @default(now())
+  club        Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  attendees   MeetingAttendee[]
+}
+
+model MeetingAttendee {
+  id        String  @id @default(cuid())
+  meetingId String
+  userId    String
+  status    String  @default("going") // going | maybe | declined
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([meetingId, userId])
+}
+
+// ───── Agenda / Tasks ─────
+model Agenda {
+  id        String   @id @default(cuid())
+  title     String
+  ownerId   String
+  clubId    String?
+  progress  Int      @default(0)
+  hue       Int      @default(25)
+  createdAt DateTime @default(now())
+  owner     User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  club      Club?  @relation(fields: [clubId], references: [id])
+  tasks     Task[]
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  agendaId  String?
+  ownerId   String
+  title     String
+  done      Boolean  @default(false)
+  dueAt     DateTime?
+  createdAt DateTime @default(now())
+  agenda    Agenda?  @relation(fields: [agendaId], references: [id], onDelete: SetNull)
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  ownerId   String
+  title     String
+  body      String?  @db.Text
+  createdAt DateTime @default(now())
+  owner     User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+}
+
+model Idea {
+  id        String   @id @default(cuid())
+  ownerId   String
+  title     String
+  body      String?  @db.Text
+  createdAt DateTime @default(now())
+  owner     User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+}
+
+// ───── Coins ledger ─────
+model CoinTx {
+  id        String   @id @default(cuid())
+  userId    String
+  delta     Int
+  reason    String
+  createdAt DateTime @default(now())
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ───── MRU / tool usage ─────
+model ToolUsage {
+  id       String   @id @default(cuid())
+  userId   String
+  toolId   String
+  usedAt   DateTime @default(now())
+  user     User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, usedAt])
+}

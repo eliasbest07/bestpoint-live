@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1400">
+<title>Bestpoint — Flujo inicial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #F5EEDC;
+    color: #1A1918;
+    -webkit-font-smoothing: antialiased;
+  }
+  * { box-sizing: border-box; }
+
+  /* subtle dotted bg */
+  body {
+    background-image: radial-gradient(rgba(26,25,24,0.08) 1px, transparent 1px);
+    background-size: 22px 22px;
+    min-height: 100vh;
+  }
+
+  .root {
+    max-width: 1400px; margin: 0 auto;
+    padding: 40px 32px;
+  }
+  .header {
+    display: flex; align-items: baseline; gap: 14px;
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800; font-size: 42px; letter-spacing: -1.2px;
+    margin: 0; display: inline-flex; align-items: center; gap: 10px;
+  }
+  .header .dot {
+    display: inline-block; width: 18px; height: 18px; border-radius: 50%;
+    background: #FF5B3A; border: 2px solid #1A1918;
+  }
+  .header .tag {
+    background: #FFC83A; border: 1.5px solid #1A1918; border-radius: 999px;
+    padding: 3px 10px; font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700; font-size: 11px; transform: rotate(-3deg);
+    box-shadow: 2px 2px 0 #1A1918;
+  }
+  .subhead {
+    font-size: 14px; color: #4A4743; max-width: 720px; margin-bottom: 28px;
+  }
+  .tabs-nav {
+    display: flex; gap: 6px; margin-bottom: 24px;
+  }
+  .tabs-nav button {
+    background: #FFFCF5; border: 2px solid #1A1918; cursor: pointer;
+    padding: 8px 16px; border-radius: 999px;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13px;
+    color: #1A1918; box-shadow: 2px 2px 0 #1A1918;
+    transition: transform 0.1s;
+  }
+  .tabs-nav button:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #1A1918; }
+  .tabs-nav button.active {
+    background: #1A1918; color: #FFF6E9;
+    box-shadow: 2px 2px 0 #FF5B3A;
+  }
+
+  .stage {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 30px;
+    align-items: start;
+  }
+
+  .panel {
+    background: #FFFCF5;
+    border: 2px solid #1A1918;
+    border-radius: 28px;
+    padding: 22px;
+    box-shadow: 4px 4px 0 #1A1918;
+  }
+  .panel h3 {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 15px;
+    margin: 0 0 4px; letter-spacing: -0.2px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel h3 .pill {
+    background: #FF5B3A; color: #fff; padding: 2px 8px; border-radius: 999px;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+    border: 1.5px solid #1A1918;
+  }
+  .panel p.desc { font-size: 12px; color: #4A4743; margin: 0 0 16px; line-height: 1.45; }
+
+  .mobile-host {
+    display: flex; justify-content: center;
+  }
+  .web-host {
+    background: #FFFCF5;
+    border: 2px solid #1A1918;
+    border-radius: 28px;
+    padding: 22px;
+    box-shadow: 4px 4px 0 #1A1918;
+  }
+  .web-host .browser-chrome {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; background: #F5EEDC;
+    border: 1.5px solid #1A1918; border-radius: 14px 14px 0 0;
+    border-bottom: 0;
+  }
+  .web-host .browser-chrome .dots {
+    display: flex; gap: 5px;
+  }
+  .web-host .browser-chrome .dots span {
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 1.2px solid #1A1918;
+  }
+  .web-host .browser-chrome .url {
+    flex: 1; background: #FFFCF5; border: 1.5px solid #1A1918;
+    border-radius: 999px; padding: 4px 12px;
+    font-family: 'ui-monospace', monospace; font-size: 11px;
+    color: #1A1918;
+  }
+  .web-host .browser-body {
+    background: #1A1918;
+    border: 1.5px solid #1A1918; border-top: 0;
+    border-radius: 0 0 14px 14px;
+    padding: 30px;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 860px;
+  }
+
+  .notes {
+    margin-top: 18px; padding-top: 18px; border-top: 1.5px dashed rgba(26,25,24,0.2);
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px;
+  }
+  .note {
+    background: #FFF6E9; border: 1.5px solid #1A1918; border-radius: 16px;
+    padding: 12px 14px; font-size: 12px; color: #4A4743; line-height: 1.45;
+    box-shadow: 2px 2px 0 #1A1918;
+  }
+  .note b { color: #1A1918; font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
+
+  .variants-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    margin-top: 10px;
+  }
+  .variant-card {
+    background: #FFFCF5; border: 2px solid #1A1918; border-radius: 26px;
+    padding: 18px; box-shadow: 3px 3px 0 #1A1918;
+  }
+  .variant-card h4 {
+    font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 16px;
+    margin: 0 0 4px; letter-spacing: -0.2px;
+  }
+  .variant-card p {
+    margin: 0 0 14px; font-size: 12px; color: #4A4743; line-height: 1.45;
+  }
+  .variant-card .vstage {
+    display: flex; justify-content: center;
+    background: #F5EEDC; border: 1.5px solid #1A1918;
+    border-radius: 18px; padding: 18px 10px;
+  }
+
+  footer {
+    margin-top: 48px; padding: 20px; text-align: center;
+    font-size: 11px; color: #8A857D; font-family: 'ui-monospace', monospace;
+  }
+</style>
+</head>
+<body>
+<div class="root">
+  <div class="header">
+    <h1><span class="dot"></span>bestpoint</h1>
+    <span class="tag">flujo inicial</span>
+  </div>
+  <div class="subhead">
+    Onboarding con cards despegables → feed con header de usuario, scroll horizontal + vertical de posts, y una <b>barra inferior dinámica</b> que persiste los últimos 4 atajos usados. El botón <b>+</b> abre un buscador flotante con todas las acciones (crear nota, tarea, idea, agenda, reunión, encuesta, post, buscar en posts, editar, eliminar, reportar avance, comentar).
+  </div>
+
+  <div class="tabs-nav">
+    <button class="active" data-view="app">Móvil + Web</button>
+    <button data-view="onb">Variantes onboarding</button>
+    <button data-view="feed">Variantes feed</button>
+    <button data-view="search">Variantes buscador</button>
+  </div>
+
+  <div id="app-view">
+    <div class="stage">
+      <!-- mobile column -->
+      <div class="panel">
+        <h3>📱 Vista móvil <span class="pill">principal</span></h3>
+        <p class="desc">Prototipo interactivo. Navegá con los tabs, ejecutá herramientas desde la barra inferior o el buscador y mirá cómo se reordena MRU.</p>
+        <div id="mobile-mount" class="mobile-host"></div>
+      </div>
+
+      <!-- web column -->
+      <div class="panel">
+        <h3>🖥️ Vista web <span class="pill">mockup centrado</span></h3>
+        <p class="desc">La web muestra la misma app centrada dentro de un viewport oscuro con cromo de navegador — consistente con el DNA móvil.</p>
+        <div class="web-host">
+          <div class="browser-chrome">
+            <div class="dots"><span style="background:#FF5B3A"></span><span style="background:#FFC83A"></span><span style="background:#2FD576"></span></div>
+            <div class="url">bestpoint.live / inicio</div>
+          </div>
+          <div class="browser-body" id="web-mount"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">
+      <div class="note"><b>Shortcuts MRU</b> — los 4 botones de la barra inferior se reordenan según uso (persisten en localStorage, clave <code>bp_mru</code>).</div>
+      <div class="note"><b>Tabs persistentes</b> — Feed / Club / Perfil conviven con los shortcuts. La barra flotante es global.</div>
+      <div class="note"><b>Buscador +</b> — se abre desde el botón <b>+</b>. Escribí para filtrar; cada acción ejecuta + bumpea el MRU.</div>
+    </div>
+  </div>
+
+  <div id="onb-view" style="display:none">
+    <div class="variants-grid" id="onb-variants"></div>
+  </div>
+  <div id="feed-view" style="display:none">
+    <div class="variants-grid" id="feed-variants"></div>
+  </div>
+  <div id="search-view" style="display:none">
+    <div class="variants-grid" id="search-variants"></div>
+  </div>
+
+  <footer>
+    hecho con ♡ · bestpoint.live · prototipo v1
+  </footer>
+</div>
+
+<!-- libs -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- components (order matters) -->
+<script type="text/babel" src="components/theme.jsx"></script>
+<script type="text/babel" src="components/icons.jsx"></script>
+<script type="text/babel" src="components/data.jsx"></script>
+<script type="text/babel" src="components/phone.jsx"></script>
+<script type="text/babel" src="components/onboarding.jsx"></script>
+<script type="text/babel" src="components/user-header.jsx"></script>
+<script type="text/babel" src="components/post-card.jsx"></script>
+<script type="text/babel" src="components/bottom-bar.jsx"></script>
+<script type="text/babel" src="components/floating-search.jsx"></script>
+<script type="text/babel" src="components/screens.jsx"></script>
+<script type="text/babel" src="components/app.jsx"></script>
+<script type="text/babel" src="components/variants.jsx"></script>
+
+<script type="text/babel">
+  // Mount — Babel scripts run after window 'load' already fired, so run immediately
+  (() => {
+    const { createRoot } = ReactDOM;
+
+    // Mobile (primary app, starts on onboarding)
+    createRoot(document.getElementById('mobile-mount')).render(
+      <Phone width={380} height={800}>
+        <BestpointApp startOnboarding={true}/>
+      </Phone>
+    );
+
+    // Web (mockup centered, skip onboarding for convenience)
+    createRoot(document.getElementById('web-mount')).render(
+      <Phone width={400} height={830}>
+        <BestpointApp startOnboarding={false}/>
+      </Phone>
+    );
+
+    // Variant tabs
+    const tabs = document.querySelectorAll('.tabs-nav button');
+    const views = {
+      app: document.getElementById('app-view'),
+      onb: document.getElementById('onb-view'),
+      feed: document.getElementById('feed-view'),
+      search: document.getElementById('search-view'),
+    };
+    let mountedVariants = { onb: false, feed: false, search: false };
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const view = btn.dataset.view;
+        Object.values(views).forEach(v => v.style.display = 'none');
+        views[view].style.display = '';
+        if (!mountedVariants[view] && view !== 'app') {
+          window.mountVariants && window.mountVariants(view);
+          mountedVariants[view] = true;
+        }
+      });
+    });
+  })();
+</script>
+</body>
+</html>
