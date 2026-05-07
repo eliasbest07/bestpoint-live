@@ -29,6 +29,7 @@ model User {
   comments      Comment[]
   likes         Like[]
   clubs         ClubMember[]
+  createdMeetings Meeting[]
   meetings      MeetingAttendee[]
   agendas       Agenda[]
   tasks         Task[]
@@ -172,14 +173,16 @@ model PollVote {
 // ───── Meeting ─────
 model Meeting {
   id          String   @id @default(cuid())
-  clubId      String
+  creatorId   String
+  clubId      String?
   title       String
   description String?  @db.Text
   startsAt    DateTime
   durationMin Int      @default(60)
   location    String?
   createdAt   DateTime @default(now())
-  club        Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  creator     User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  club        Club?    @relation(fields: [clubId], references: [id], onDelete: Cascade)
   attendees   MeetingAttendee[]
 }
 
@@ -197,6 +200,7 @@ model MeetingAttendee {
 model Agenda {
   id        String   @id @default(cuid())
   title     String
+  description String? @db.Text
   ownerId   String
   clubId    String?
   progress  Int      @default(0)
@@ -204,7 +208,19 @@ model Agenda {
   createdAt DateTime @default(now())
   owner     User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   club      Club?  @relation(fields: [clubId], references: [id])
+  items     AgendaItem[]
   tasks     Task[]
+}
+
+model AgendaItem {
+  id        String   @id @default(cuid())
+  agendaId  String
+  order     Int
+  title     String
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  agenda    Agenda   @relation(fields: [agendaId], references: [id], onDelete: Cascade)
+  @@index([agendaId, order])
 }
 
 model Task {
