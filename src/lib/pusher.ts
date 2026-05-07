@@ -22,5 +22,6 @@ export function getPusherClient() {
 
 export const CHANNELS = {
   feed: "feed",
+  club: (id: string) => `club-${id}`,
   post: (id: string) => `post-${id}`,
 };
